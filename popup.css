@@ -1,0 +1,76 @@
+:root {
+  --bg: #16171b;
+  --panel: #1f2026;
+  --line: #2c2e36;
+  --text: #e8e8ec;
+  --muted: #8b8d98;
+  --accent: #ffd600;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  width: 300px;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--line);
+}
+h1 { margin: 0; font-size: 15px; font-weight: 650; }
+.preview { margin-top: 6px; color: var(--muted); }
+.preview span { color: var(--text); padding: 1px 4px; border-radius: 3px 6px 4px 7px; }
+section { padding: 10px 16px; border-bottom: 1px solid var(--line); }
+h2 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+h2 kbd { float: right; }
+.hint { margin: 0 0 8px; color: var(--muted); }
+.row { margin-bottom: 8px; }
+.row:last-child { margin-bottom: 0; }
+label { display: flex; justify-content: space-between; margin-bottom: 2px; }
+output { color: var(--muted); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.swatches { display: flex; gap: 6px; align-items: center; }
+.swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer; padding: 0;
+}
+.swatch.active { border-color: var(--text); }
+input[type="color"] {
+  width: 26px; height: 26px; border: none; padding: 0;
+  background: none; cursor: pointer; margin-left: auto;
+}
+kbd {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 5px;
+  font: 11px ui-monospace, monospace;
+  color: var(--text);
+}
+.segmented {
+  display: flex;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px;
+}
+.theme-btn {
+  flex: 1; background: none; border: none; color: var(--muted);
+  padding: 4px 0; border-radius: 4px; cursor: pointer; font: inherit;
+}
+.theme-btn.active { background: var(--line); color: var(--text); }
+footer { padding: 10px 16px 14px; display: flex; justify-content: space-between; align-items: center; }
+.keys { color: var(--muted); font-size: 12px; }
+button.reset {
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 4px 10px; cursor: pointer; font: inherit;
+}
+button.reset:hover { border-color: var(--muted); }
