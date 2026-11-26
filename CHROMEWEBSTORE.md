@@ -89,7 +89,7 @@ The screenshots show the extension running on an original demo page with sample 
 
 | Version | Scope | Status |
 | --- | --- | --- |
-| Unreleased | Persistent On/Off switch in the toolbar popup | Implemented |
+| 1.1.1 | Persistent On/Off switch in the toolbar popup | Draft |
 | 1.1.0 | Initial store submission with animated highlights, spotlight zoom, smooth scrolling, clean mode and blur | Submitted |
 
 For the next store update, add that the popup can turn the tools on or off and remembers the choice locally. Include the enabled setting in the storage justification and privacy policy.

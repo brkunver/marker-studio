@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Marker Studio",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Screen recording helpers: animated highlighter, spotlight zoom, smooth auto-scroll, clean mode and blur.",
   "permissions": ["storage"],
   "icons": {
