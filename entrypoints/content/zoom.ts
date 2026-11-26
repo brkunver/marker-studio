@@ -1,14 +1,37 @@
-"use strict"
+import type { MarkerSettings } from "@/utils/settings"
 
-function createMarkerZoom(settings, overlayZIndex) {
+export type MarkerRect = Pick<DOMRectReadOnly, "left" | "top" | "width" | "height">
+
+type ZoomDrag = {
+  pointerId: number
+  x: number
+  y: number
+}
+
+type ZoomSelection = {
+  overlay: HTMLDivElement
+  box: HTMLDivElement
+  drag: ZoomDrag | null
+}
+
+type ZoomState = {
+  originX: number
+  originY: number
+  camera: Animation
+  spotlight: HTMLDivElement
+  dimming: Animation
+  returning: boolean
+}
+
+export function createMarkerZoom(settings: MarkerSettings, overlayZIndex: string) {
   const Z_SPOT = "2147483646"
   const SPOT_PAD = 16
   const MIN_ZOOM_SELECTION = 8
   const ZOOM_EASING = "cubic-bezier(0.37, 0, 0.63, 1)"
 
-  let zoomSelection = null
-  let armedZoomRect = null
-  let zoom = null
+  let zoomSelection: ZoomSelection | null = null
+  let armedZoomRect: MarkerRect | null = null
+  let zoom: ZoomState | null = null
 
   function toggleZoom() {
     if (zoom) {
@@ -59,8 +82,8 @@ function createMarkerZoom(settings, overlayZIndex) {
     document.documentElement.appendChild(overlay)
   }
 
-  function startZoomDrag(e) {
-    if (e.button !== 0 || zoomSelection.drag) {
+  function startZoomDrag(e: PointerEvent) {
+    if (!zoomSelection || e.button !== 0 || zoomSelection.drag) {
       return
     }
     e.preventDefault()
@@ -68,7 +91,7 @@ function createMarkerZoom(settings, overlayZIndex) {
     zoomSelection.overlay.setPointerCapture(e.pointerId)
   }
 
-  function getZoomDragRect(e, drag) {
+  function getZoomDragRect(e: PointerEvent, drag: ZoomDrag) {
     const x = Math.max(0, Math.min(e.clientX, document.documentElement.clientWidth))
     const y = Math.max(0, Math.min(e.clientY, document.documentElement.clientHeight))
     return {
@@ -79,13 +102,13 @@ function createMarkerZoom(settings, overlayZIndex) {
     }
   }
 
-  function moveZoomDrag(e) {
-    const { drag, box } = zoomSelection
-    if (drag?.pointerId !== e.pointerId) {
+  function moveZoomDrag(e: PointerEvent) {
+    const drag = zoomSelection?.drag
+    if (!zoomSelection || drag?.pointerId !== e.pointerId) {
       return
     }
     const rect = getZoomDragRect(e, drag)
-    Object.assign(box.style, {
+    Object.assign(zoomSelection.box.style, {
       display: "block",
       left: `${rect.left}px`,
       top: `${rect.top}px`,
@@ -94,8 +117,8 @@ function createMarkerZoom(settings, overlayZIndex) {
     })
   }
 
-  function finishZoomDrag(e) {
-    const { drag } = zoomSelection
+  function finishZoomDrag(e: PointerEvent) {
+    const drag = zoomSelection?.drag
     if (drag?.pointerId !== e.pointerId) {
       return
     }
@@ -108,7 +131,7 @@ function createMarkerZoom(settings, overlayZIndex) {
     closeZoomSelection()
   }
 
-  function clearZoomDrag(e) {
+  function clearZoomDrag(e: PointerEvent) {
     if (zoomSelection?.drag?.pointerId !== e.pointerId) {
       return
     }
@@ -124,7 +147,7 @@ function createMarkerZoom(settings, overlayZIndex) {
     zoomSelection = null
   }
 
-  function zoomTo(rect) {
+  function zoomTo(rect: MarkerRect) {
     const root = document.documentElement
     const vw = root.clientWidth
     const vh = root.clientHeight
@@ -133,11 +156,11 @@ function createMarkerZoom(settings, overlayZIndex) {
     const scale = Math.max(1, Math.min(settings.maxZoom, fitW, fitH))
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
-    const [originX, originY] = getComputedStyle(root).transformOrigin.split(" ").map(parseFloat)
+    const [originX = 0, originY = 0] = getComputedStyle(root).transformOrigin.split(" ").map(parseFloat)
     // Compensate for scaling around the page's origin so the selected center follows a straight path.
     const dx = vw / 2 + window.scrollX - cx - (cx - originX) * (scale - 1)
     const dy = vh / 2 + window.scrollY - cy - (cy - originY) * (scale - 1)
-    const timing = { duration: settings.zoomDuration, easing: ZOOM_EASING, fill: "both" }
+    const timing: KeyframeAnimationOptions = { duration: settings.zoomDuration, easing: ZOOM_EASING, fill: "both" }
     const spotlight = drawSpotlight(rect)
     const camera = root.animate({
       transform: ["translate(0px, 0px) scale(1)", `translate(${dx}px, ${dy}px) scale(${scale})`]
@@ -146,7 +169,7 @@ function createMarkerZoom(settings, overlayZIndex) {
     zoom = { originX, originY, camera, spotlight, dimming, returning: false }
   }
 
-  function drawSpotlight(rect) {
+  function drawSpotlight(rect: MarkerRect) {
     const el = document.createElement("div")
     Object.assign(el.style, {
       position: "absolute",
@@ -180,7 +203,7 @@ function createMarkerZoom(settings, overlayZIndex) {
   }
 
   // Map a viewport rect to untransformed document coords (works while zoomed)
-  function toDocRect(left, top, width, height) {
+  function toDocRect(left: number, top: number, width: number, height: number) {
     if (!zoom) {
       return { left: left + window.scrollX, top: top + window.scrollY, width, height }
     }

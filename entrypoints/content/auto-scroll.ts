@@ -1,7 +1,14 @@
-"use strict"
+import type { MarkerSettings } from "@/utils/settings"
 
-function createMarkerAutoScroll(settings) {
-  let scroller = null
+type ScrollState = {
+  pos: number
+  velocity: number
+  stopping: boolean
+  last: number
+}
+
+export function createMarkerAutoScroll(settings: MarkerSettings) {
+  let scroller: ScrollState | null = null
 
   function toggleScroll() {
     if (scroller) {
@@ -13,7 +20,7 @@ function createMarkerAutoScroll(settings) {
   }
 
   // Constant speed with a short linear ramp at start and stop
-  function stepScroll(now) {
+  function stepScroll(now: number) {
     if (!scroller) {
       return
     }
@@ -35,7 +42,7 @@ function createMarkerAutoScroll(settings) {
     requestAnimationFrame(stepScroll)
   }
 
-  function approach(current, target, step) {
+  function approach(current: number, target: number, step: number) {
     if (current < target) {
       return Math.min(target, current + step)
     }

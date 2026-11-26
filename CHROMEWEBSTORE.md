@@ -66,7 +66,7 @@ The manifest declares `storage` and a static content-script match. Use the host-
 
 | Dashboard asset | File | Size |
 | --- | --- | --- |
-| Store icon | [icons/128.png](icons/128.png) | 128 × 128 |
+| Store icon | [128.png](public/icons/128.png) | 128 × 128 |
 | Screenshot 1 | [Animated highlighter](store-assets/01-highlighter.png) | 1280 × 800 |
 | Screenshot 2 | [Spotlight zoom](store-assets/02-spotlight-zoom.png) | 1280 × 800 |
 | Small promo tile | [Marker Studio](store-assets/small-promo.png) | 440 × 280 |
@@ -93,3 +93,5 @@ The screenshots show the extension running on an original demo page with sample 
 | 1.1.0 | Initial store submission with animated highlights, spotlight zoom, smooth scrolling, clean mode and blur | Submitted |
 
 For the next store update, add that the popup can turn the tools on or off and remembers the choice locally. Include the enabled setting in the storage justification and privacy policy.
+
+For WXT builds, run `bun install --frozen-lockfile` and `bun run zip` to build the Chrome upload ZIP under `.output/`. The Git archive command above reproduces the original 1.1.0 package.

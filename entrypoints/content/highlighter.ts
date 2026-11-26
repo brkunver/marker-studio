@@ -1,13 +1,32 @@
-"use strict"
+import { markerColor, type MarkerSettings } from "@/utils/settings"
+import type { createMarkerZoom, MarkerRect } from "./zoom"
 
-function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
+type LineRect = {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+type Rgba = {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
+export function createMarkerHighlighter(
+  settings: MarkerSettings,
+  toDocRect: ReturnType<typeof createMarkerZoom>["toDocRect"],
+  overlayZIndex: string,
+) {
   const STROKE_CLASS = "__ms-stroke"
   const STROKE_Y_PAD = 1
   const EASE_IN = "cubic-bezier(0.5, 0, 0.75, 0.75)"
   const EASE_OUT = "cubic-bezier(0.25, 0.25, 0.5, 1)"
   const EASE_IN_OUT = "cubic-bezier(0.65, 0, 0.35, 1)"
 
-  const highlightQueue = []
+  const highlightQueue: Range[] = []
   let highlightEndsAt = 0
 
   function queueHighlight() {
@@ -25,12 +44,13 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
       return
     }
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    const startTime = Math.max(document.timeline.currentTime ?? 0, highlightEndsAt)
+    const currentTime = document.timeline.currentTime
+    const startTime = Math.max(typeof currentTime === "number" ? currentTime : 0, highlightEndsAt)
     highlightEndsAt = drawRange(range, startTime, reduceMotion)
   }
 
   // Rects are measured at draw time, so scrolling between presses is fine
-  function drawRange(range, startTime, reduceMotion) {
+  function drawRange(range: Range, startTime: number, reduceMotion: boolean) {
     const lines = getLineRects(range)
     const dark = isDarkBackground(range)
     lines.forEach((line, i) => {
@@ -45,7 +65,7 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
     return startTime
   }
 
-  function isDarkBackground(range) {
+  function isDarkBackground(range: Range) {
     if (settings.theme === "light") {
       return false
     }
@@ -53,7 +73,7 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
       return true
     }
     const node = range.startContainer
-    let el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement
+    let el = node instanceof Element ? node : node.parentElement
     while (el) {
       const color = parseColor(getComputedStyle(el).backgroundColor)
       if (color && color.a > 0.5) {
@@ -64,26 +84,29 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
     return getComputedStyle(document.documentElement).colorScheme.includes("dark")
   }
 
-  function parseColor(value) {
-    const nums = value.match(/[\d.]+/g)
-    if (!value.startsWith("rgb") || !nums || nums.length < 3) {
+  function parseColor(value: string) {
+    if (!value.startsWith("rgb")) {
       return null
     }
-    return { r: +nums[0], g: +nums[1], b: +nums[2], a: nums.length > 3 ? +nums[3] : 1 }
+    const [r, g, b, a = 1] = value.match(/[\d.]+/g)?.map(Number) ?? []
+    if (r === undefined || g === undefined || b === undefined) {
+      return null
+    }
+    return { r, g, b, a }
   }
 
-  function luminance(c) {
+  function luminance(c: Rgba) {
     return (0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b) / 255
   }
 
   // Merge duplicate rects into one rect per visual line
-  function getLineRects(range) {
-    let lines = []
+  function getLineRects(range: Range) {
+    const lines: LineRect[] = []
     for (const rect of range.getClientRects()) {
       if (rect.width < 2) {
         continue
       }
-      let same = lines.find((l) => Math.abs(l.top - rect.top) < 4)
+      const same = lines.find(line => Math.abs(line.top - rect.top) < 4)
       if (same) {
         same.top = Math.min(same.top, rect.top)
         same.bottom = Math.max(same.bottom, rect.bottom)
@@ -97,7 +120,7 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
   }
 
   // Keep speed continuous across line breaks
-  function getTiming(index, total, width) {
+  function getTiming(index: number, total: number, width: number) {
     const base = ((width + 8) / settings.highlightSpeed) * 1000
     if (total === 1) {
       return { duration: base * 1.4, easing: EASE_IN_OUT }
@@ -113,7 +136,7 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
 
   // Dark pages: invert the strip first, then multiply the color on top,
   // so the result reads like a real highlighter (light strip, dark text)
-  function drawStroke(line, timing, startTime, dark) {
+  function drawStroke(line: LineRect, timing: KeyframeAnimationOptions, startTime: number, dark: boolean) {
     const rect = toDocRect(line.left, line.top, line.right - line.left, line.bottom - line.top)
     const layers = []
     if (dark) {
@@ -126,8 +149,8 @@ function createMarkerHighlighter(settings, toDocRect, overlayZIndex) {
     }
   }
 
-  function createStrokeLayer(rect, background, blend) {
-    let el = document.createElement("div")
+  function createStrokeLayer(rect: MarkerRect, background: string, blend: string) {
+    const el = document.createElement("div")
     el.className = STROKE_CLASS
     Object.assign(el.style, {
       position: "absolute",

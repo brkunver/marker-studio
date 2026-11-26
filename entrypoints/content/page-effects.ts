@@ -1,39 +1,51 @@
-"use strict"
+import type { MarkerSettings } from "@/utils/settings"
 
-function createMarkerPageEffects(settings) {
-  let hovered = null
-  let cleanState = null
-  const blurred = new Map()
+type StyledElement = Element & ElementCSSInlineStyle
+
+type SavedStyle = {
+  el: StyledElement
+  prop: string
+  value: string
+  priority: string
+}
+
+export function createMarkerPageEffects(settings: MarkerSettings, signal: AbortSignal) {
+  let hovered: StyledElement | null = null
+  let cleanState: SavedStyle[] | null = null
+  const blurred = new Map<StyledElement, string>()
 
   document.addEventListener("mousemove", (e) => {
     if (settings.enabled) {
-      hovered = e.target
+      hovered = hasInlineStyle(e.target) ? e.target : null
     }
-  }, true)
+  }, { capture: true, signal })
 
   function toggleClean() {
     if (cleanState) {
-      restoreClean()
+      restoreClean(cleanState)
       return
     }
-    cleanState = { saved: [] }
+    cleanState = []
     for (const el of document.querySelectorAll("body *")) {
+      if (!hasInlineStyle(el)) {
+        continue
+      }
       const position = getComputedStyle(el).position
       if (position === "fixed" || position === "sticky") {
-        cleanState.saved.push(saveStyle(el, "visibility"))
+        cleanState.push(saveStyle(el, "visibility"))
         el.style.setProperty("visibility", "hidden", "important")
       }
     }
     // Consent modals often lock page scroll
     for (const el of [document.documentElement, document.body]) {
       if (getComputedStyle(el).overflowY === "hidden") {
-        cleanState.saved.push(saveStyle(el, "overflow"))
+        cleanState.push(saveStyle(el, "overflow"))
         el.style.setProperty("overflow", "auto", "important")
       }
     }
   }
 
-  function saveStyle(el, prop) {
+  function saveStyle(el: StyledElement, prop: string) {
     return {
       el,
       prop,
@@ -42,8 +54,8 @@ function createMarkerPageEffects(settings) {
     }
   }
 
-  function restoreClean() {
-    for (const item of cleanState.saved) {
+  function restoreClean(items: SavedStyle[]) {
+    for (const item of items) {
       item.el.style.setProperty(item.prop, item.value, item.priority)
     }
     cleanState = null
@@ -54,8 +66,9 @@ function createMarkerPageEffects(settings) {
     if (!el || el === document.body || el === document.documentElement) {
       return
     }
-    if (blurred.has(el)) {
-      el.style.filter = blurred.get(el)
+    const previousFilter = blurred.get(el)
+    if (previousFilter !== undefined) {
+      el.style.filter = previousFilter
       blurred.delete(el)
       return
     }
@@ -65,7 +78,7 @@ function createMarkerPageEffects(settings) {
 
   function reset() {
     if (cleanState) {
-      restoreClean()
+      restoreClean(cleanState)
     }
     blurred.forEach((filter, el) => {
       el.style.filter = filter
@@ -74,4 +87,8 @@ function createMarkerPageEffects(settings) {
   }
 
   return { toggleClean, toggleBlur, reset }
+}
+
+function hasInlineStyle(target: EventTarget | null): target is StyledElement {
+  return target instanceof Element && "style" in target && target.style instanceof CSSStyleDeclaration
 }
