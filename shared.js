@@ -1,4 +1,4 @@
-const MARKER_DEFAULTS = {
+const MARKER_PREFERENCE_DEFAULTS = {
   color: "#ffd600",
   opacity: 0.6,
   highlightSpeed: 450,
@@ -9,6 +9,8 @@ const MARKER_DEFAULTS = {
   blur: 8,
   theme: "auto"
 }
+
+const MARKER_DEFAULTS = { ...MARKER_PREFERENCE_DEFAULTS, enabled: true }
 
 function markerColor(hex, opacity) {
   const clean = hex.replace("#", "")

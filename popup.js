@@ -8,14 +8,20 @@ const UNITS = {
   blur: " px"
 }
 
-const INPUT_KEYS = Object.keys(MARKER_DEFAULTS).filter((key) => key !== "theme")
+const INPUT_KEYS = Object.keys(MARKER_PREFERENCE_DEFAULTS).filter((key) => key !== "theme")
+const enabledToggle = document.getElementById("enabled-toggle")
 
 let current = { ...MARKER_DEFAULTS }
+let savingEnabled = false
 
 init()
 
 function init() {
-  chrome.storage.local.get(MARKER_DEFAULTS, fillForm)
+  chrome.storage.local.get(MARKER_DEFAULTS, (stored) => {
+    fillForm(stored)
+    enabledToggle.disabled = false
+  })
+  enabledToggle.addEventListener("click", onToggleEnabled)
   document.querySelectorAll(".theme-btn").forEach((btn) => {
     btn.addEventListener("click", onThemeClick)
   })
@@ -38,6 +44,29 @@ function fillForm(values) {
   }
   updateThemeButtons()
   updatePreview()
+  updateEnabledToggle()
+}
+
+async function onToggleEnabled() {
+  if (savingEnabled) {
+    return
+  }
+  const enabled = !current.enabled
+  savingEnabled = true
+  try {
+    await chrome.storage.local.set({ enabled })
+    current.enabled = enabled
+    updateEnabledToggle()
+  } catch (error) {
+    console.error("Could not save Marker Studio's enabled state", error)
+  } finally {
+    savingEnabled = false
+  }
+}
+
+function updateEnabledToggle() {
+  enabledToggle.setAttribute("aria-checked", String(current.enabled))
+  enabledToggle.textContent = current.enabled ? "On" : "Off"
 }
 
 function onThemeClick(e) {
@@ -98,6 +127,6 @@ function updatePreview() {
 }
 
 function resetDefaults() {
-  chrome.storage.local.set(MARKER_DEFAULTS)
-  fillForm(MARKER_DEFAULTS)
+  chrome.storage.local.set(MARKER_PREFERENCE_DEFAULTS)
+  fillForm({ ...MARKER_PREFERENCE_DEFAULTS, enabled: current.enabled })
 }

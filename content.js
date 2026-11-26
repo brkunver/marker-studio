@@ -6,7 +6,7 @@
   }
   window.__markerStudio = true
 
-  const settings = { ...MARKER_DEFAULTS }
+  const settings = { ...MARKER_DEFAULTS, enabled: false }
   const overlayZIndex = "2147483647"
   const zoom = createMarkerZoom(settings, overlayZIndex)
   const highlighter = createMarkerHighlighter(settings, zoom.toDocRect, overlayZIndex)
@@ -36,12 +36,15 @@
       return
     }
     for (const key in changes) {
-      settings[key] = changes[key].newValue
+      settings[key] = changes[key].newValue ?? MARKER_DEFAULTS[key]
+    }
+    if (changes.enabled && !settings.enabled) {
+      resetAll()
     }
   }
 
   function onKeyDown(e) {
-    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) {
+    if (!settings.enabled || e.repeat || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) {
       return
     }
     const key = (e.key || "").toLowerCase()

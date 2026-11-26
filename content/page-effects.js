@@ -6,7 +6,9 @@ function createMarkerPageEffects(settings) {
   const blurred = new Map()
 
   document.addEventListener("mousemove", (e) => {
-    hovered = e.target
+    if (settings.enabled) {
+      hovered = e.target
+    }
   }, true)
 
   function toggleClean() {

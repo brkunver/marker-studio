@@ -80,7 +80,7 @@ The screenshots show the extension running on an original demo page with sample 
 2. From the repo root, build the upload ZIP from the release commit. This includes the files listed by the manifest and the popup stylesheet. [Packaging requirements](https://developer.chrome.com/docs/webstore/prepare)
 
    ```sh
-   git archive --format=zip --output=marker-studio-1.1.0.zip HEAD manifest.json shared.js content.js content popup.html popup.js popup.css icons
+   git archive --format=zip --output=marker-studio-1.1.0.zip 4f8ef6a manifest.json shared.js content.js content popup.html popup.js popup.css icons
    ```
 
 3. Go to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole), add a new item, and upload the ZIP. Paste the listing and privacy fields and upload the graphics above. Confirm the distribution settings. The proposed defaults are **Free**, **Public**, and all supported regions.
@@ -89,4 +89,7 @@ The screenshots show the extension running on an original demo page with sample 
 
 | Version | Scope | Status |
 | --- | --- | --- |
-| 1.1.0 | Initial store submission with animated highlights, spotlight zoom, smooth scrolling, clean mode and blur | Prepared |
+| Unreleased | Persistent On/Off switch in the toolbar popup | Implemented |
+| 1.1.0 | Initial store submission with animated highlights, spotlight zoom, smooth scrolling, clean mode and blur | Submitted |
+
+For the next store update, add that the popup can turn the tools on or off and remembers the choice locally. Include the enabled setting in the storage justification and privacy policy.
