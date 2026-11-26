@@ -58,7 +58,7 @@ The manifest declares `storage` and a static content-script match. Use the host-
 
 **Data usage** — Disclose **Website content** and **User activity** for local handling. Website content covers selected text ranges and page elements used for the visual effects. User activity covers shortcut events, the element currently under the pointer, and drag or scroll positions used by the tools. Chrome keeps these transient values in the current tab. Marker Studio keeps no activity log, reads no browsing history, and transmits no user data. Leave the other data types clear and certify all three Limited Use statements.
 
-**Privacy policy URL** — https://github.com/brkunver/marker-studio/blob/main/PRIVACY.md
+**Privacy policy URL** — https://raw.githubusercontent.com/brkunver/marker-studio/refs/heads/main/PRIVACY.md
 
 [Chrome Web Store privacy fields](https://developer.chrome.com/docs/webstore/cws-dashboard-privacy) · [User Data FAQ on local processing](https://developer.chrome.com/docs/webstore/program-policies/user-data-faq)
 
