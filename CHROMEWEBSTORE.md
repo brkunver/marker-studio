@@ -70,8 +70,9 @@ The manifest declares `storage` and a static content-script match. Use the host-
 | Screenshot 1 | [Animated highlighter](store-assets/01-highlighter.png) | 1280 × 800 |
 | Screenshot 2 | [Spotlight zoom](store-assets/02-spotlight-zoom.png) | 1280 × 800 |
 | Small promo tile | [Marker Studio](store-assets/small-promo.png) | 440 × 280 |
+| Marquee promo tile (optional) | [Marker Studio marquee](store-assets/marquee-promo.png) | 1400 × 560 |
 
-The screenshots show the extension running on an original demo page with sample content. Upload the images separately from the extension ZIP. The tile covers the stricter of Google's two asset guides. [Listing fields](https://developer.chrome.com/docs/webstore/cws-dashboard-listing) · [Image sizes and formats](https://developer.chrome.com/docs/webstore/images)
+The screenshots show the extension running on an original demo page with sample content. Upload the images separately from the extension ZIP. [Listing fields](https://developer.chrome.com/docs/webstore/cws-dashboard-listing) · [Image sizes and formats](https://developer.chrome.com/docs/webstore/images)
 
 ## Submit the first build
 
