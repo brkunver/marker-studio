@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --bg: #16171b;
+      --panel: #1f2026;
+      --line: #2c2e36;
+      --text: #e8e8ec;
+      --muted: #8b8d98;
+      --accent: #ffd600;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      width: 300px;
+      background: var(--bg);
+      color: var(--text);
+      font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0; font-size: 15px; font-weight: 650; }
+    .preview { margin-top: 6px; color: var(--muted); }
+    .preview span { color: var(--text); padding: 1px 4px; border-radius: 3px 6px 4px 7px; }
+    section { padding: 10px 16px; border-bottom: 1px solid var(--line); }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    h2 kbd { float: right; }
+    .hint { margin: 0 0 8px; color: var(--muted); }
+    .row { margin-bottom: 8px; }
+    .row:last-child { margin-bottom: 0; }
+    label { display: flex; justify-content: space-between; margin-bottom: 2px; }
+    output { color: var(--muted); font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .swatches { display: flex; gap: 6px; align-items: center; }
+    .swatch {
+      width: 22px; height: 22px; border-radius: 50%;
+      border: 2px solid transparent; cursor: pointer; padding: 0;
+    }
+    .swatch.active { border-color: var(--text); }
+    input[type="color"] {
+      width: 26px; height: 26px; border: none; padding: 0;
+      background: none; cursor: pointer; margin-left: auto;
+    }
+    kbd {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0 5px;
+      font: 11px ui-monospace, monospace;
+      color: var(--text);
+    }
+    .segmented {
+      display: flex;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 2px;
+    }
+    .theme-btn {
+      flex: 1; background: none; border: none; color: var(--muted);
+      padding: 4px 0; border-radius: 4px; cursor: pointer; font: inherit;
+    }
+    .theme-btn.active { background: var(--line); color: var(--text); }
+    footer { padding: 10px 16px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .keys { color: var(--muted); font-size: 12px; }
+    button.reset {
+      background: var(--panel); color: var(--text);
+      border: 1px solid var(--line); border-radius: 6px;
+      padding: 4px 10px; cursor: pointer; font: inherit;
+    }
+    button.reset:hover { border-color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Marker Studio</h1>
+    <div class="preview">Preview: <span id="preview">highlighted text</span></div>
+  </header>
+
+  <section>
+    <h2>Highlighter <kbd>H</kbd></h2>
+    <p class="hint">Select text and press H to queue it. Press Shift + H to highlight selections in order.</p>
+    <div class="row swatches">
+      <button class="swatch" data-color="#ffd600" style="background:#ffd600"></button>
+      <button class="swatch" data-color="#7cff6b" style="background:#7cff6b"></button>
+      <button class="swatch" data-color="#4fd8ff" style="background:#4fd8ff"></button>
+      <button class="swatch" data-color="#ff6bd6" style="background:#ff6bd6"></button>
+      <button class="swatch" data-color="#ff9a3c" style="background:#ff9a3c"></button>
+      <input type="color" id="color" title="Custom color">
+    </div>
+    <div class="row">
+      <label>Page theme</label>
+      <div class="segmented">
+        <button class="theme-btn" data-theme="auto">Auto</button>
+        <button class="theme-btn" data-theme="light">Light</button>
+        <button class="theme-btn" data-theme="dark">Dark</button>
+      </div>
+    </div>
+    <div class="row">
+      <label>Opacity <output id="opacity-out"></output></label>
+      <input type="range" id="opacity" min="0.2" max="1" step="0.05">
+    </div>
+    <div class="row">
+      <label>Speed <output id="highlightSpeed-out"></output></label>
+      <input type="range" id="highlightSpeed" min="150" max="1000" step="25">
+    </div>
+  </section>
+
+  <section>
+    <h2>Spotlight zoom <kbd>Z</kbd></h2>
+    <p class="hint">Press Z and drag to select an area. Press Z again to zoom in, then once more to zoom out.</p>
+    <div class="row">
+      <label>Max zoom <output id="maxZoom-out"></output></label>
+      <input type="range" id="maxZoom" min="1.2" max="4" step="0.1">
+    </div>
+    <div class="row">
+      <label>Dim <output id="dim-out"></output></label>
+      <input type="range" id="dim" min="0" max="0.9" step="0.05">
+    </div>
+    <div class="row">
+      <label>Duration <output id="zoomDuration-out"></output></label>
+      <input type="range" id="zoomDuration" min="300" max="2000" step="50">
+    </div>
+  </section>
+
+  <section>
+    <h2>Auto-scroll <kbd>S</kbd></h2>
+    <div class="row">
+      <label>Speed <output id="scrollSpeed-out"></output></label>
+      <input type="range" id="scrollSpeed" min="30" max="600" step="10">
+    </div>
+  </section>
+
+  <section>
+    <h2>Blur <kbd>B</kbd></h2>
+    <div class="row">
+      <label>Amount <output id="blur-out"></output></label>
+      <input type="range" id="blur" min="2" max="20" step="1">
+    </div>
+  </section>
+
+  <footer>
+    <span class="keys"><kbd>C</kbd> clean · <kbd>Esc</kbd> reset</span>
+    <button class="reset" id="reset">Defaults</button>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
