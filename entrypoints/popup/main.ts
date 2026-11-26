@@ -3,7 +3,8 @@ import {
   MARKER_PREFERENCE_DEFAULTS,
   markerColor,
   readMarkerSettings,
-  writeMarkerSettings,
+  resetMarkerPreferences,
+  writeMarkerSetting,
   type MarkerSettings,
 } from "@/utils/settings"
 
@@ -104,7 +105,7 @@ async function onToggleEnabled() {
   const enabled = !current.enabled
   savingEnabled = true
   try {
-    await writeMarkerSettings({ enabled })
+    await writeMarkerSetting("enabled", enabled)
     current.enabled = enabled
     updateEnabledToggle()
   } catch (error) {
@@ -127,7 +128,7 @@ function updateThemeButtons() {
 
 function save<Key extends keyof MarkerSettings>(key: Key, value: MarkerSettings[Key]) {
   current[key] = value
-  void writeMarkerSettings({ [key]: value }).catch(reportSaveError)
+  void writeMarkerSetting(key, value).catch(reportSaveError)
 }
 
 function reportSaveError(error: unknown) {
@@ -146,6 +147,6 @@ function updatePreview() {
 }
 
 function resetDefaults() {
-  void writeMarkerSettings(MARKER_PREFERENCE_DEFAULTS).catch(reportSaveError)
+  void resetMarkerPreferences().catch(reportSaveError)
   fillForm({ ...MARKER_PREFERENCE_DEFAULTS, enabled: current.enabled })
 }

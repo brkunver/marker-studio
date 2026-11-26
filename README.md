@@ -9,7 +9,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-WXT opens a development browser with the extension loaded. The popup and its stylesheet live in `entrypoints/popup/`. The content script and its page tools live in `entrypoints/content/`. Both use the same local settings in `utils/settings.ts`.
+WXT opens a development browser with the extension loaded. The popup and its stylesheet live in `entrypoints/popup/`. The content script and its page tools live in `entrypoints/content/`. Both use the WXT Storage items in `utils/settings.ts`, which map to the existing local storage keys.
 
 ## Build for Chrome
 

@@ -1,16 +1,9 @@
-import { browser } from "wxt/browser"
 import { defineContentScript } from "wxt/utils/define-content-script"
-import { MARKER_DEFAULTS, readMarkerSettings, type MarkerSettings } from "@/utils/settings"
+import { MARKER_DEFAULTS, readMarkerSettings, watchMarkerSettings, type MarkerSettings } from "@/utils/settings"
 import { createMarkerAutoScroll } from "./auto-scroll"
 import { createMarkerHighlighter } from "./highlighter"
 import { createMarkerPageEffects } from "./page-effects"
 import { createMarkerZoom } from "./zoom"
-
-type SettingsChanges = {
-  [Key in keyof MarkerSettings]?: { newValue?: MarkerSettings[Key] }
-}
-
-const settingKeys = Object.keys(MARKER_DEFAULTS) as (keyof MarkerSettings)[]
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -32,49 +25,32 @@ export default defineContentScript({
       ["escape", resetAll],
     ])
 
-    const settingsChangedWhileLoading = new Set<keyof MarkerSettings>()
+    const changesWhileLoading: Partial<MarkerSettings> = {}
     let loadingSettings = true
-    browser.storage.local.onChanged.addListener(onSettingsChanged)
+    const unwatch = watchMarkerSettings(onSettingChanged)
     ctx.addEventListener(document, "keydown", onKeyDown, { capture: true })
     ctx.onInvalidated(() => {
-      browser.storage.local.onChanged.removeListener(onSettingsChanged)
+      unwatch()
       resetAll()
     })
 
     try {
       const stored = await readMarkerSettings()
       if (ctx.isValid) {
-        for (const key of settingKeys) {
-          if (!settingsChangedWhileLoading.has(key)) {
-            applySetting(key, stored[key])
-          }
-        }
+        Object.assign(settings, stored, changesWhileLoading)
       }
     } finally {
       loadingSettings = false
-      settingsChangedWhileLoading.clear()
     }
 
-    function onSettingsChanged(rawChanges: Record<string, Browser.storage.StorageChange>) {
-      // Changes come from the persisted MarkerSettings keys written by the popup.
-      const changes = rawChanges as SettingsChanges
-      for (const key of settingKeys) {
-        const change = changes[key]
-        if (!change) {
-          continue
-        }
-        if (loadingSettings) {
-          settingsChangedWhileLoading.add(key)
-        }
-        applySetting(key, change.newValue)
+    function onSettingChanged<Key extends keyof MarkerSettings>(key: Key, value: MarkerSettings[Key]) {
+      if (loadingSettings) {
+        changesWhileLoading[key] = value
       }
-      if (changes.enabled && !settings.enabled) {
+      settings[key] = value
+      if (key === "enabled" && !settings.enabled) {
         resetAll()
       }
-    }
-
-    function applySetting<Key extends keyof MarkerSettings>(key: Key, value: MarkerSettings[Key] | undefined) {
-      settings[key] = value ?? MARKER_DEFAULTS[key]
     }
 
     function onKeyDown(event: KeyboardEvent) {
